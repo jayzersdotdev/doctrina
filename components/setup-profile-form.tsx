@@ -1,6 +1,8 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Input } from './ui/input'
-import { Textarea } from './ui/textarea'
+import { TextArea } from './ui/textarea'
 import { Tables } from '@/lib/database.types'
 import { extractUsername } from '@/lib/utils'
 import { cx } from '@/lib/cva.config'
@@ -8,6 +10,8 @@ import { ProfilePicture } from './profile-picture'
 import { Label } from './ui/label'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { updateProfile } from '@/lib/actions/profile'
+import { TextField } from './text-field'
+import { useFormState, useFormStatus } from 'react-dom'
 
 export function SetupProfileForm({
 	profile,
@@ -16,11 +20,12 @@ export function SetupProfileForm({
 	profile: Tables<'profiles'>
 	message: string
 }) {
-	const action = async (formData: FormData) => {
-		'use server'
-		updateProfile(formData)
-	}
-
+	const [state, action] = useFormState(updateProfile, {
+		type: null,
+		message: '',
+	})
+	const { pending } = useFormStatus()
+	console.log(state)
 	return (
 		<div className="max-w-2xl mx-auto space-y-2">
 			<p
@@ -36,52 +41,42 @@ export function SetupProfileForm({
 				url={profile.avatar_url}
 				size={128}
 			/>
-			<form className="my-4 space-y-4" action={action}>
-				<Label htmlFor="username">Username</Label>
-				<Input
-					type="text"
-					placeholder="Username"
-					id="username"
-					name="username"
+			<form className="my-4 space-y-4" action={action} name="username">
+				<TextField
 					defaultValue={
 						profile.username ?? extractUsername(profile.email)
 					}
-				/>
-				<Label htmlFor="full_name">Display Name</Label>
-				<Input
-					type="text"
-					placeholder="Display Name"
-					id="full_name"
-					name="full_name"
+					name="username"
+				>
+					<Label>Username</Label>
+					<Input />
+				</TextField>
+				<TextField
 					defaultValue={profile.full_name ?? ''}
-				/>
-
-				<Label htmlFor="email">Email</Label>
-				<Input
-					type="text"
-					placeholder="johndoe@email.com"
-					id="email"
-					name="email"
-					defaultValue={profile.email ?? ''}
-				/>
-				<Label htmlFor="biography">Biography</Label>
-				<Textarea
-					placeholder="Tell us a little bit about yourself"
-					className="resize-none"
-					id="biography"
-					name="biography"
+					name="full_name"
+				>
+					<Label>Display Name</Label>
+					<Input />
+				</TextField>
+				<TextField defaultValue={profile.email ?? ''} name="email">
+					<Label>Email</Label>
+					<Input />
+				</TextField>
+				<TextField
 					defaultValue={profile.biography ?? ''}
-				/>
-				<Label htmlFor="university">University</Label>
-				<Input
-					type="text"
-					placeholder="What university do you attend?"
-					name="university"
-					id="university"
+					name="biography"
+				>
+					<Label>Biography</Label>
+					<TextArea className="resize-none" />
+				</TextField>
+				<TextField
 					defaultValue={profile.university ?? ''}
-				/>
+					name="university"
+				>
+					<Label>University</Label>
+					<Input />
+				</TextField>
 				<Label htmlFor="role">Role</Label>
-
 				<RadioGroup
 					defaultValue={profile.role ?? 'student'}
 					id="role"
@@ -105,33 +100,24 @@ export function SetupProfileForm({
 					</div>
 				</RadioGroup>
 
-				<Label htmlFor="program">Program</Label>
-				<Input
-					type="text"
-					placeholder="Program"
-					name="program"
-					id="program"
-					defaultValue={profile.program ?? ''}
-				/>
-
-				<Label htmlFor="section">Section</Label>
-				<Input
-					type="text"
-					placeholder="Section"
-					name="section"
-					id="section"
-					defaultValue={profile.section ?? ''}
-				/>
-
-				<Label htmlFor="position">Position</Label>
-				<Input
-					type="text"
-					placeholder="Position"
-					name="position"
-					id="position"
+				<TextField defaultValue={profile.program ?? ''} name="program">
+					<Label>Program</Label>
+					<Input />
+				</TextField>
+				<TextField defaultValue={profile.section ?? ''} name="section">
+					<Label>Section</Label>
+					<Input />
+				</TextField>
+				<TextField
 					defaultValue={profile.position ?? ''}
-				/>
-				<Button type="submit">Submit</Button>
+					name="position"
+				>
+					<Label>Position</Label>
+					<Input />
+				</TextField>
+				<Button className="w-full">
+					{pending ? 'Submitting	' : 'Submit'}
+				</Button>
 			</form>
 		</div>
 	)

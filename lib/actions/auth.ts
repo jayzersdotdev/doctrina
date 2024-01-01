@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { signInWithEmailSchema } from '../validations/auth'
 import { getURL } from '../utils'
+import { FormState } from '../form.types'
 
 export async function signInWithGoogle() {
 	const cookieStore = cookies()
@@ -25,9 +26,9 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithEmail(
-	previousState: { type: 'success' | 'error' | null; message: string | null },
+	previousState: FormState,
 	formData: FormData,
-): Promise<{ type: 'success' | 'error' | null; message: string | null }> {
+): Promise<FormState> {
 	const cookieStore = cookies()
 	const supabase = createClient(cookieStore)
 	const redirectURL = getURL(`/api/auth/confirm`)

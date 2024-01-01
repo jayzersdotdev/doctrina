@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default function Page() {
@@ -9,9 +9,12 @@ export default function Page() {
 			<h1 className="text-destructive font-bold text-4xl text-center">
 				Something went wrong with the authentication
 			</h1>
-			<Button asChild variant="link">
-				<Link href="/auth/signin">Click here to try again.</Link>
-			</Button>
+			<Link
+				href="/auth/signin"
+				className={buttonVariants({ variant: 'link' })}
+			>
+				Click here to try again.
+			</Link>
 		</div>
 	)
 }

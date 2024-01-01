@@ -68,9 +68,6 @@ dependencies:
   react-aria-components:
     specifier: ^1.0.0
     version: 1.0.0(react-dom@18.2.0)(react@18.2.0)
-  react-day-picker:
-    specifier: ^8.10.0
-    version: 8.10.0(date-fns@3.0.6)(react@18.2.0)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
@@ -83,6 +80,9 @@ dependencies:
   tailwindcss-animate:
     specifier: ^1.0.7
     version: 1.0.7(tailwindcss@3.4.0)
+  tailwindcss-react-aria-components:
+    specifier: ^1.0.0
+    version: 1.0.0(tailwindcss@3.4.0)
   zod:
     specifier: ^3.22.4
     version: 3.22.4
@@ -4728,16 +4728,6 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /react-day-picker@8.10.0(date-fns@3.0.6)(react@18.2.0):
-    resolution: {integrity: sha512-mz+qeyrOM7++1NCb1ARXmkjMkzWVh2GL9YiPbRjKe0zHccvekk4HE+0MPOZOrosn8r8zTHIIeOUXTmXRqmkRmg==}
-    peerDependencies:
-      date-fns: ^2.28.0 || ^3.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      date-fns: 3.0.6
-      react: 18.2.0
-    dev: false
-
   /react-dom@18.2.0(react@18.2.0):
     resolution: {integrity: sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==}
     peerDependencies:
@@ -5172,6 +5162,14 @@ packages:
 
   /tailwindcss-animate@1.0.7(tailwindcss@3.4.0):
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || insiders'
+    dependencies:
+      tailwindcss: 3.4.0
+    dev: false
+
+  /tailwindcss-react-aria-components@1.0.0(tailwindcss@3.4.0):
+    resolution: {integrity: sha512-iQNS6/037UPYTxj4G4IMFL7R3FT5I583/c/nQFdvYwU0gpuTZXCSeaWjCp9q0V9DqZypdo+j8KLRVaxD5z7psA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
     dependencies:

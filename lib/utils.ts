@@ -55,3 +55,16 @@ export const getFilename = (url: string) => {
 	const filename = url.split('/').pop()
 	return filename
 }
+
+export const constructDueDate = (date: string, time: string) => {
+	const [hours, minutes] = time.split(':')
+	const [year, month, day] = date.split('-')
+
+	return new Date(
+		parseInt(year),
+		parseInt(month) - 1,
+		parseInt(day),
+		parseInt(hours),
+		parseInt(minutes),
+	)
+}

@@ -1,10 +1,13 @@
+'use client'
+
 import { Input } from './ui/input'
 import { Tables } from '@/lib/database.types'
 import { Label } from './ui/label'
 import { Button } from './ui/button'
-import { Textarea } from './ui/textarea'
+import { TextArea } from './ui/textarea'
 import { createAssignment } from '@/lib/actions/assignment'
-import { revalidateTag } from 'next/cache'
+import { useFormState } from 'react-dom'
+import { TextField } from './text-field'
 
 export async function CreateAssignment({
 	course,
@@ -14,32 +17,21 @@ export async function CreateAssignment({
 	const { course_id } = course
 
 	const createAssignmentWithCourseId = createAssignment.bind(null, course_id)
-
-	const action = async (formData: FormData) => {
-		'use server'
-		createAssignmentWithCourseId(formData)
-		revalidateTag('assignments')
-	}
+	const [state, action] = useFormState(createAssignmentWithCourseId, {
+		type: null,
+		message: '',
+	})
 
 	return (
 		<form action={action} className="space-y-8">
-			<div className="space-y-2">
-				<Label htmlFor="title">Assignment title</Label>
-				<Input
-					type="text"
-					id="title"
-					name="title"
-					placeholder="Assignment title"
-				/>
-			</div>
-			<div className="space-y-2">
-				<Label htmlFor="description">Assignment description</Label>
-				<Textarea
-					id="description"
-					name="description"
-					placeholder="Assignment description"
-				/>
-			</div>
+			<TextField className="space-y-2" name="title">
+				<Label>Assignment title</Label>
+				<Input type="text" placeholder="Assignment title" />
+			</TextField>
+			<TextField className="space-y-2" name="description">
+				<Label>Assignment description</Label>
+				<TextArea />
+			</TextField>
 
 			<div>
 				<Label htmlFor="dueDate">Assignment due date</Label>
@@ -70,15 +62,10 @@ export async function CreateAssignment({
 				/>
 			</div>
 
-			<div>
-				<Label htmlFor="link">Assignment Link</Label>
-				<Input
-					type="url"
-					id="link"
-					name="link"
-					placeholder="Assignment Link"
-				/>
-			</div>
+			<TextField type="url" name="link">
+				<Label>Assignment Link</Label>
+				<Input />
+			</TextField>
 
 			<Button type="submit">Create assignment</Button>
 		</form>

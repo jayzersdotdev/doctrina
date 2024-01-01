@@ -1,12 +1,14 @@
+'use server'
+
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { profileSchema } from '@/lib/validations/profile'
 import { createPostgresTimestamp } from '../utils'
 import { redirect } from 'next/navigation'
-import { revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
+import { FormState } from '../form.types'
 
-export async function updateProfile(formData: FormData) {
-	'use server'
+export async function updateProfile(previousState: FormState, formData: FormData): Promise<FormState> {
 	const cookieStore = cookies()
 	const supabase = createClient(cookieStore)
 	const date = new Date()
@@ -42,7 +44,7 @@ export async function updateProfile(formData: FormData) {
 	} = session
 
 	if (!values.success) {
-		throw values.error
+		return { type: 'error', message: values.error.message[0] }
 	}
 
 	if (values.data.role === 'student') {
@@ -61,7 +63,7 @@ export async function updateProfile(formData: FormData) {
 			.eq('profile_id', id)
 
 		if (error) {
-			throw error
+			return { type: 'error', message: error.message }
 		}
 	} else if (values.data.role === 'instructor') {
 		const { error } = await supabase
@@ -79,8 +81,14 @@ export async function updateProfile(formData: FormData) {
 			.eq('profile_id', id)
 
 		if (error) {
-			throw error
+			return { type: 'error', message: error.message }
 		}
 	}
-	revalidateTag('profile')
+
+	revalidatePath('/profile')
+
+	return {
+		type: 'success',
+		message: 'Profile updated successfully',
+	}
 }

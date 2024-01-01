@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '../supabase/server'
 import { joinCourseSchema } from '../validations/course'
 
-export async function createEnrollment(formData: FormData) {
+export async function createEnrollment(_: any, formData: FormData) {
 	const parsedData = joinCourseSchema.parse({
 		courseCode: formData.get('courseCode'),
 	})

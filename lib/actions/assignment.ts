@@ -5,21 +5,15 @@ import { createClient } from '@/lib/supabase/server'
 import { assignmentSchema } from '../validations/assignment'
 import { revalidatePath } from 'next/cache'
 import { getProfileById } from '../queries/profile'
+import { constructDueDate } from '../utils'
+import { FormState } from '../form.types'
+import { redirect } from 'next/navigation'
 
-const constructDueDate = (date: string, time: string) => {
-	const [hours, minutes] = time.split(':')
-	const [year, month, day] = date.split('-')
-
-	return new Date(
-		parseInt(year),
-		parseInt(month) - 1,
-		parseInt(day),
-		parseInt(hours),
-		parseInt(minutes),
-	)
-}
-
-export async function createAssignment(course_id: string, formData: FormData) {
+export async function createAssignment(
+	course_id: string,
+	previousState: FormState,
+	formData: FormData,
+): Promise<FormState> {
 	const cookieStore = cookies()
 	const supabase = createClient(cookieStore)
 
@@ -33,7 +27,7 @@ export async function createAssignment(course_id: string, formData: FormData) {
 	} = await supabase.auth.getUser()
 
 	if (!user) {
-		throw new Error('User not found')
+		redirect('/auth/signin')
 	}
 
 	const profile = await getProfileById(user.id)
@@ -59,10 +53,13 @@ export async function createAssignment(course_id: string, formData: FormData) {
 			)
 
 	if (assignmentFilesError) {
-		throw assignmentFilesError
+		return {
+			type: 'error',
+			message: assignmentFilesError.message,
+		}
 	}
 
-	const { error: assignmentError } = await supabase
+	const { data, error: assignmentError } = await supabase
 		.from('assignments')
 		.insert({
 			title: values.title,
@@ -71,10 +68,19 @@ export async function createAssignment(course_id: string, formData: FormData) {
 			course_id: course_id,
 			profile_id: profile.profile_id,
 		})
+		.select('assignment_id')
+		.single()
 
 	revalidatePath(`/courses/${course_id}`)
 
 	if (assignmentError) {
 		throw assignmentError
+	}
+
+	revalidatePath(`/course/${course_id}/${data.assignment_id}`)
+
+	return {
+		type: 'success',
+		message: 'Assignment created successfully',
 	}
 }

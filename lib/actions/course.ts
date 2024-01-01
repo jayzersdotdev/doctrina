@@ -6,8 +6,12 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { courseSchema } from '../validations/course'
 import { revalidatePath } from 'next/cache'
+import { FormState } from '../form.types'
 
-export async function createCourse(formData: FormData) {
+export async function createCourse(
+	previousState: FormState,
+	formData: FormData,
+): Promise<FormState> {
 	const cookieStore = cookies()
 	const supabase = createClient(cookieStore)
 
@@ -25,7 +29,10 @@ export async function createCourse(formData: FormData) {
 	} = await supabase.auth.getSession()
 
 	if (sessionError) {
-		throw sessionError
+		return {
+			type: 'error',
+			message: sessionError.message,
+		}
 	}
 
 	if (!session) {
@@ -38,7 +45,7 @@ export async function createCourse(formData: FormData) {
 		.eq('user_id', session.user.id)
 		.single()
 
-	const { data: insertedCourse, error } = await supabase
+	const { data: insertedCourse, error: courseError } = await supabase
 		.from('courses')
 		.insert({
 			course_id: humanId({ separator: '-', capitalize: false }),
@@ -60,15 +67,31 @@ export async function createCourse(formData: FormData) {
 			.eq('course_id', insertedCourse?.course_id)
 			.single()
 
-		if (selectCourseError) throw selectCourseError
+		if (selectCourseError) {
+			return { type: 'error', message: selectCourseError.message }
+		}
 
-		const { error } = await supabase.from('enrollments').insert({
+		const { error: enrollmentsError } = await supabase.from('enrollments').insert({
 			user_id: session.user.id,
 			course_id: course.course_id,
 		})
 
-		if (error) throw error
+		if (enrollmentsError) {
+			return { type: 'error', message: enrollmentsError.message }
+		}
 	}
 
-	if (error) throw error
+	if (courseError) {
+		return {
+			type: 'error',
+			message: courseError.message,
+		}
+	}
+
+	revalidatePath('/')
+
+	return {
+		type: 'success',
+		message: 'Course created successfully',
+	}
 }
