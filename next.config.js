@@ -11,7 +11,6 @@ const config = {
 				port: '',
 			},
 		],
-		domains: ['loremflickr.com'],
 	},
 }
 
