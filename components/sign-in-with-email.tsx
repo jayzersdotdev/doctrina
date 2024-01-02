@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormState } from 'react-dom'
-import { TextField, TextFieldErrorMessage } from './text-field'
+import { TextField, TextFieldErrorMessage } from './ui/text-field'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'

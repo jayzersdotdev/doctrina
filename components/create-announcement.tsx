@@ -5,7 +5,7 @@ import { Label } from './ui/label'
 import { TextArea } from './ui/textarea'
 import { revalidateTag } from 'next/cache'
 import { Tables } from '@/lib/database.types'
-import { TextField } from './text-field'
+import { TextField } from './ui/text-field'
 
 export function CreateAnnouncement({ course }: { course: Tables<'courses'> }) {
 	const action = async (formData: FormData) => {

@@ -7,7 +7,7 @@ import { Button } from './ui/button'
 import { TextArea } from './ui/textarea'
 import { createAssignment } from '@/lib/actions/assignment'
 import { useFormState } from 'react-dom'
-import { TextField } from './text-field'
+import { TextField } from './ui/text-field'
 
 export async function CreateAssignment({
 	course,

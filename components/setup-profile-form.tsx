@@ -10,7 +10,7 @@ import { ProfilePicture } from './profile-picture'
 import { Label } from './ui/label'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { updateProfile } from '@/lib/actions/profile'
-import { TextField } from './text-field'
+import { TextField } from './ui/text-field'
 import { useFormState, useFormStatus } from 'react-dom'
 
 export function SetupProfileForm({
