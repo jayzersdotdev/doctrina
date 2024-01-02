@@ -1,23 +1,25 @@
+'use client'
+
 import { createAnnouncement } from '@/lib/actions/announcement'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { TextArea } from './ui/textarea'
-import { revalidateTag } from 'next/cache'
 import { Tables } from '@/lib/database.types'
 import { TextField } from './ui/text-field'
+import { useFormState, useFormStatus } from 'react-dom'
 
 export function CreateAnnouncement({ course }: { course: Tables<'courses'> }) {
-	const action = async (formData: FormData) => {
-		'use server'
-		const createAnnouncementWithCourseId = createAnnouncement.bind(
-			null,
-			course.course_id,
-		)
+	const createAnnouncementWithCourseId = createAnnouncement.bind(
+		null,
+		course.course_id,
+	)
 
-		createAnnouncementWithCourseId(formData)
-		revalidateTag('announcements')
-	}
+	const [state, action] = useFormState(createAnnouncementWithCourseId, {
+		message: '',
+		success: null,
+	})
+	const { pending } = useFormStatus()
 
 	return (
 		<form
@@ -25,36 +27,27 @@ export function CreateAnnouncement({ course }: { course: Tables<'courses'> }) {
 			className="flex flex-col gap-2 border border-border px-4 py-2 rounded"
 		>
 			<div className="flex flex-col gap-4">
-				<TextField>
-					<Label htmlFor="title">Title</Label>
-					<Input
-						type="text"
-						name="title"
-						id="title"
-						required
-						placeholder="Title of your announcement"
-					/>
+				<TextField name="title" type="text" isRequired>
+					<Label>Title</Label>
+					<Input />
 				</TextField>
-				<Label htmlFor="description">Title</Label>
-				<TextArea
-					placeholder="Announce something to the class"
-					className="resize-none"
-					id="description"
-					required
-					name="description"
-				/>
+				<TextField name="description" type="text" isRequired>
+					<Label>Description</Label>
+					<TextArea className="resize-none" />
+				</TextField>
 				<Label htmlFor="attachment">Upload a file</Label>
 				<Input type="file" name="attachment" id="attachment" />
-				<Label htmlFor="link"> Link</Label>
-				<Input
-					type="url"
-					name="link"
-					id="link"
-					placeholder="https://google.com"
-				/>
+				<TextField type="url" name="link">
+					<Label>Link</Label>
+					<Input />
+				</TextField>
 			</div>
 			<div className="flex flex-row gap-4">
-				<Button type="submit" className="justify-self-end">
+				<Button
+					type="submit"
+					className="justify-self-end"
+					disabled={pending}
+				>
 					Announce
 				</Button>
 			</div>

@@ -22,6 +22,7 @@ export const getProfileById = async (id: string) => {
 		.from('profiles')
 		.select()
 		.eq('profile_id', id)
+		.limit(1)
 		.single()
 
 	if (error) {
@@ -39,6 +40,7 @@ export const getProfileRole = async (id: string) => {
 		.from('profiles')
 		.select('role')
 		.eq('profile_id', id)
+		.limit(1)
 		.single()
 
 	if (error) {

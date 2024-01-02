@@ -19,6 +19,7 @@ export const getAssignmentById = async (assignmentId: string) => {
 		.from('assignments')
 		.select()
 		.eq('assignment_id', assignmentId)
+		.limit(1)
 		.single()
 
 	return assignment

@@ -30,7 +30,7 @@ export async function createCourse(
 
 	if (sessionError) {
 		return {
-			type: 'error',
+			success: false,
 			message: sessionError.message,
 		}
 	}
@@ -43,6 +43,7 @@ export async function createCourse(
 		.from('profiles')
 		.select('user_id, role')
 		.eq('user_id', session.user.id)
+		.limit(1)
 		.single()
 
 	const { data: insertedCourse, error: courseError } = await supabase
@@ -56,6 +57,7 @@ export async function createCourse(
 			room: values.room,
 		})
 		.select()
+		.limit(1)
 		.single()
 
 	if (session) {
@@ -65,33 +67,67 @@ export async function createCourse(
 			.from('courses')
 			.select('*')
 			.eq('course_id', insertedCourse?.course_id)
+			.limit(1)
 			.single()
 
 		if (selectCourseError) {
-			return { type: 'error', message: selectCourseError.message }
+			return { success: false, message: selectCourseError.message }
 		}
 
-		const { error: enrollmentsError } = await supabase.from('enrollments').insert({
-			user_id: session.user.id,
-			course_id: course.course_id,
-		})
+		const { error: enrollmentsError } = await supabase
+			.from('enrollments')
+			.insert({
+				user_id: session.user.id,
+				course_id: course.course_id,
+			})
 
 		if (enrollmentsError) {
-			return { type: 'error', message: enrollmentsError.message }
+			return { success: false, message: enrollmentsError.message }
 		}
 	}
 
 	if (courseError) {
 		return {
-			type: 'error',
+			success: false,
 			message: courseError.message,
+		}
+	}
+
+	revalidatePath('/')
+	revalidatePath('/create/course')
+
+	return {
+		success: false,
+		message: 'Course created successfully',
+	}
+}
+
+export async function deleteCourse(
+	courseId: string,
+	previousState: FormState,
+	formData: FormData,
+): Promise<FormState> {
+	const cookieStore = cookies()
+	const supabase = createClient(cookieStore)
+
+	const {
+		error: deleteError,
+		status,
+		statusText,
+	} = await supabase.from('courses').delete().eq('course_id', courseId)
+
+	console.log({ status, statusText })
+	if (deleteError) {
+		return {
+			success: false,
+			message: deleteError.message,
 		}
 	}
 
 	revalidatePath('/')
 
 	return {
-		type: 'success',
-		message: 'Course created successfully',
+		success: true,
+		message: 'Course deleted successfully',
 	}
 }

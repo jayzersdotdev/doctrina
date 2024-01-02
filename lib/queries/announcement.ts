@@ -22,6 +22,7 @@ export const getAnnouncementById = async (id: string) => {
 		.from('announcements')
 		.select()
 		.eq('announcement_id', id)
+		.limit(1)
 		.single()
 
 	return announcement

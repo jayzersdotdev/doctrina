@@ -9,16 +9,12 @@ import { createAssignment } from '@/lib/actions/assignment'
 import { useFormState } from 'react-dom'
 import { TextField } from './ui/text-field'
 
-export async function CreateAssignment({
-	course,
-}: {
-	course: Tables<'courses'>
-}) {
+export function CreateAssignment({ course }: { course: Tables<'courses'> }) {
 	const { course_id } = course
 
 	const createAssignmentWithCourseId = createAssignment.bind(null, course_id)
 	const [state, action] = useFormState(createAssignmentWithCourseId, {
-		type: null,
+		success: null,
 		message: '',
 	})
 
@@ -66,6 +62,7 @@ export async function CreateAssignment({
 				<Label>Assignment Link</Label>
 				<Input />
 			</TextField>
+			<p className="text-destructive">{!state.success && state.message}</p>
 
 			<Button type="submit">Create assignment</Button>
 		</form>

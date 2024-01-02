@@ -102,7 +102,9 @@ export default async function Page({ params }: Props) {
 					</TabsTrigger>
 					<TabsTrigger value="assignments">Assignments</TabsTrigger>
 					<TabsTrigger value="people">People</TabsTrigger>
-					<TabsTrigger value="grades">Grades</TabsTrigger>
+					{profile.role === 'instructor' && (
+						<TabsTrigger value="grades">Grades</TabsTrigger>
+					)}
 				</TabsList>
 				<TabsContent value="announcements">
 					<Suspense fallback={<p>Loading...</p>}>
@@ -127,11 +129,13 @@ export default async function Page({ params }: Props) {
 						<People enrolledPeople={enrolledPeople} />
 					</Suspense>
 				</TabsContent>
-				<TabsContent value="grades">
-					<Suspense fallback={<p>Loading...</p>}>
-						<Grades assignments={assignments} />
-					</Suspense>
-				</TabsContent>
+				{profile.role === 'instructor' && (
+					<TabsContent value="grades">
+						<Suspense fallback={<p>Loading...</p>}>
+							<Grades assignments={assignments} />
+						</Suspense>
+					</TabsContent>
+				)}
 			</Tabs>
 		</main>
 	)

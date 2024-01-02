@@ -1,7 +1,10 @@
+'use server'
+
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '../supabase/server'
 import { joinCourseSchema } from '../validations/course'
+import { revalidatePath } from 'next/cache'
 
 export async function createEnrollment(_: any, formData: FormData) {
 	const parsedData = joinCourseSchema.parse({
@@ -21,6 +24,7 @@ export async function createEnrollment(_: any, formData: FormData) {
 		.from('courses')
 		.select()
 		.eq('course_id', parsedData.courseCode)
+		.limit(1)
 		.single()
 
 	if (count === 0) {
@@ -37,4 +41,7 @@ export async function createEnrollment(_: any, formData: FormData) {
 	if (insertEnrollmentError) {
 		throw insertEnrollmentError
 	}
+
+	revalidatePath('/')
+	revalidatePath('/enroll/course')
 }

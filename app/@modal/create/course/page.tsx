@@ -1,16 +1,20 @@
+'use client'
+
 import { CloseDialog } from '@/components/close-dialog'
 import { ModalBackground } from '@/components/modal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { TextArea } from '@/components/ui/textarea'
 import { createCourse } from '@/lib/actions/course'
+import { useFormState } from 'react-dom'
 
 export default function Page() {
-	const action = async (formData: FormData) => {
-		'use server'
-		createCourse(formData)
-	}
+	const [state, action] = useFormState(createCourse, {
+		message: '',
+		success: null,
+	})
+
 	return (
 		<ModalBackground>
 			<form
@@ -53,7 +57,7 @@ export default function Page() {
 						placeholder="Room"
 					/>
 					<Label htmlFor="description">Class Description</Label>
-					<Textarea
+					<TextArea
 						id="description"
 						name="description"
 						placeholder="Class Description"

@@ -28,6 +28,7 @@ export default async function AppShell({ children }: Props) {
 		.from('profiles')
 		.select('username, avatar_url, role')
 		.eq('profile_id', id)
+		.limit(1)
 		.single()
 
 	if (error) {

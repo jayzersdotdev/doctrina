@@ -1,4 +1,4 @@
 export type FormState = {
-	type: 'success' | 'error' | null
+	success: boolean | null
 	message: string | null
 }

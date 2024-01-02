@@ -1,5 +1,3 @@
-'use client'
-
 import { Tables } from '@/lib/database.types'
 import { createClient } from '@/lib/supabase/server'
 import { getFilename } from '@/lib/utils'

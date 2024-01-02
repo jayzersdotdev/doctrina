@@ -110,7 +110,7 @@ export function Header({
 								)}
 								<DropdownMenuItem>
 									<Button size="lg" asChild variant="ghost">
-										<Link href="/join/course">
+										<Link href="/enroll/course">
 											Enroll Course
 										</Link>
 									</Button>

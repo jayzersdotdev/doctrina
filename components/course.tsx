@@ -8,13 +8,21 @@ import {
 	CardHeader,
 	CardTitle,
 } from './ui/card'
-import { Button } from './ui/button'
+import { Button, buttonVariants } from './ui/button'
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import { getProfileById } from '@/lib/queries/profile'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { PersonIcon } from '@radix-ui/react-icons'
+import { DotsVerticalIcon, PersonIcon } from '@radix-ui/react-icons'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from './ui/dropdown-menu'
+import { DeleteCourse } from './delete-course'
+import { cx } from '@/lib/cva.config'
+import Image from 'next/image'
 
 export async function Course({ course }: { course: Tables<'courses'> }) {
 	const cookieStore = cookies()
@@ -28,13 +36,33 @@ export async function Course({ course }: { course: Tables<'courses'> }) {
 		redirect('/auth/signin')
 	}
 
-	const { data: profile } = await supabase
+	const { data: profileData, error: profileError } = await supabase
 		.from('profiles')
-		.select('role')
+		.select('role, full_name, username')
 		.eq('profile_id', session.user.id)
+		.limit(1)
 		.single()
 
-	const instructorProfile = await getProfileById(course.instructor_id)
+	const { data: instructorProfileData, error: instructorProfileError } =
+		await supabase
+			.from('profiles')
+			.select('avatar_url')
+			.eq('profile_id', course.instructor_id)
+			.limit(1)
+			.single()
+
+	if (profileError) {
+		throw new Error(profileError.message)
+	}
+
+	if (instructorProfileError) {
+		throw new Error(instructorProfileError.message)
+	}
+
+	const [profile, instructorProfile] = await Promise.all([
+		profileData,
+		instructorProfileData,
+	])
 
 	if (!profile) {
 		redirect('/auth/signin')
@@ -49,6 +77,48 @@ export async function Course({ course }: { course: Tables<'courses'> }) {
 		notFound()
 	}
 
+	const pending =
+		assignments.data.length === 0 ? 'no' : assignments.data.length
+	const classWorks =
+		assignments.data.length === 0 ? 'classwork' : 'classworks'
+	const toDo = profile.role === 'instructor' ? 'to grade' : 'to complete'
+
+	const getAvatarAlt = () => {
+		if (profile.full_name) {
+			return `${profile.full_name}'s avatar`
+		} else if (profile.username) {
+			return `${profile.full_name}'s avatar`
+		} else {
+			return 'A user avatar'
+		}
+	}
+
+	const avatarAlt = getAvatarAlt()
+
+	const Avatar = ({ src }: { src: string | null }) => {
+		if (src) {
+			return (
+				<Image
+					src={src}
+					alt={avatarAlt}
+					className={cx('aspect-square h-full w-full')}
+					width={40}
+					height={40}
+				/>
+			)
+		}
+
+		return (
+			<div
+				className={cx(
+					'flex h-full w-full items-center justify-center rounded-full bg-muted',
+				)}
+			>
+				<PersonIcon />
+			</div>
+		)
+	}
+
 	return (
 		<Card className="max-w-sm h-60">
 			<CardHeader className="flex flex-row justify-between items-center">
@@ -59,30 +129,44 @@ export async function Course({ course }: { course: Tables<'courses'> }) {
 					</CardDescription>
 				</div>
 				<div>
-					<Avatar>
-						<AvatarImage src={instructorProfile.avatar_url ?? ''} />
-						<AvatarFallback>
-							<PersonIcon />
-						</AvatarFallback>
-					</Avatar>
+					<div
+						className={cx(
+							'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
+						)}
+					>
+						<Avatar src={instructorProfile.avatar_url} />
+					</div>
+				</div>
+				<div>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button size="icon" variant="ghost">
+								<DotsVerticalIcon />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem>
+								<DeleteCourse courseId={course.course_id} />
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</CardHeader>
 			<CardContent>
 				<p>
-					You currently have{' '}
-					{assignments.data.length === 0
-						? 'no'
-						: assignments.data.length}{' '}
-					pending{' '}
-					{assignments.data.length === 0 ? 'classwork' : 'classworks'}{' '}
-					{profile.role === 'instructor' ? 'to grade' : 'to complete'}
-					.
+					You currently have {pending} pending {classWorks} {toDo}.
 				</p>
 			</CardContent>
 			<CardFooter>
-				<Button className="w-full" asChild>
-					<Link href={`/course/${course.course_id}`}>View More</Link>
-				</Button>
+				<Link
+					className={cx(
+						buttonVariants({ variant: 'default' }),
+						'w-full',
+					)}
+					href={`/course/${course.course_id}`}
+				>
+					View More
+				</Link>
 			</CardFooter>
 		</Card>
 	)

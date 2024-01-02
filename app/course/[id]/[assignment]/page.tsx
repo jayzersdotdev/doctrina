@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button'
+// import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+// import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import {
 	Table,
@@ -10,7 +10,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table'
-import { createOutput } from '@/lib/actions/output'
+// import { createOutput } from '@/lib/actions/output'
 import { Tables } from '@/lib/database.types'
 import { getAssignmentById } from '@/lib/queries/assignment'
 import { getEnrollments } from '@/lib/queries/enrollment'
@@ -18,10 +18,11 @@ import { getProfileById } from '@/lib/queries/profile'
 import { createClient } from '@/lib/supabase/server'
 import { QueryData } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import Link from 'next/link'
+// import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { Fragment } from 'react'
 import { createClient as createBrowserClient } from '@/lib/supabase/client'
+import { StudentView } from './student-view'
 
 export async function generateStaticParams() {
 	const supabase = createBrowserClient()
@@ -43,34 +44,7 @@ type Props = {
 		assignment: string
 	}
 }
-const StudentView = ({
-	assignment,
-	userId,
-}: {
-	assignment: Tables<'assignments'>
-	userId: string
-}) => {
-	const createOutputBound = createOutput.bind(
-		null,
-		assignment.assignment_id,
-		userId,
-	)
-	return (
-		<div className="max-w-2xl mx-auto">
-			<h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-				{assignment.title}
-			</h1>
-			<Separator className="my-8" />
-			<div>
-				<p className="whitespace-pre-wrap">{assignment.description}</p>
-			</div>
-			<form action={createOutputBound}>
-				<Input type="file" name="output" id="output" />
-				<Button type="submit">Submit</Button>
-			</form>
-		</div>
-	)
-}
+
 const TeacherView = async ({
 	assignment,
 }: {
@@ -131,9 +105,9 @@ const TeacherView = async ({
 				</TableHeader>
 				<TableBody>
 					<TableRow>
-						{outputsWithStudents?.map((output) => (
+						{/* {outputsWithStudents?.map((output) => (
 							<Output key={output.output_id} output={output} />
-						))}
+						))} */}
 					</TableRow>
 				</TableBody>
 			</Table>
@@ -150,10 +124,13 @@ type OutputProps = {
 export async function Output({ output }: OutputProps) {
 	const cookieStore = cookies()
 	const supabase = createClient(cookieStore)
-
-	const { data: file } = await supabase.storage
-		.from('files')
-		.createSignedUrl(output.attachment, 3600)
+	let newFiles = []
+	for (const attachment of output.attachments) {
+		const { data: files } = await supabase.storage
+			.from('files')
+			.createSignedUrl(attachment, 3600)
+		newFiles.push(files?.signedUrl)
+	}
 	const submittedAt = new Date(output.submitted_at)
 	const options: Intl.DateTimeFormatOptions = {
 		weekday: 'long',
@@ -180,7 +157,7 @@ export async function Output({ output }: OutputProps) {
 				</form>
 			</TableCell>
 			<TableCell>
-				{file ? (
+				{/* {newFiles ? (
 					<Button variant="link" asChild>
 						<Link href={file.signedUrl} target="_blank">
 							View
@@ -188,7 +165,7 @@ export async function Output({ output }: OutputProps) {
 					</Button>
 				) : (
 					<span>No file</span>
-				)}
+				)} */}
 			</TableCell>
 			<TableCell>
 				{submittedAt.toLocaleDateString('en-US', options)}

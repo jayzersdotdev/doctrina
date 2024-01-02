@@ -9,6 +9,7 @@ export const getCourseById = async (id: string) => {
 		.from('courses')
 		.select()
 		.eq('course_id', id)
+		.limit(1)
 		.single()
 
 	return course

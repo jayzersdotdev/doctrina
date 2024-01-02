@@ -1,18 +1,15 @@
+'use client'
+
 import { CloseDialog } from '@/components/close-dialog'
 import { ModalBackground } from '@/components/modal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createEnrollment } from '@/lib/actions/enrollment'
-import { revalidateTag } from 'next/cache'
+import { useFormState } from 'react-dom'
 
 export default function Page() {
-	const action = async (formData: FormData) => {
-		'use server'
-		createEnrollment(formData)
-		revalidateTag('courses')
-		revalidateTag('enrollments')
-	}
+	const [state, action] = useFormState(createEnrollment, null)
 
 	return (
 		<ModalBackground>
